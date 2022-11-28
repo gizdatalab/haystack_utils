@@ -22,6 +22,5 @@ setuptools.setup(
         author_email='prashant.singh@giz.de',
         package_dir={"": "src"},
         packages=setuptools.find_packages(where='src'),  
-
         install_requires=install_requires, #external packages as dependencies
 )
