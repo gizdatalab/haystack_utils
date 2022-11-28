@@ -15,11 +15,13 @@ install_requires = [
 
 
 setuptools.setup(
-   name='utils',
-   version='1.0',
-   description='A useful module',
-   author='prashant',
-   author_email='prashant.singh@giz.de',
-   packages=setuptools.find_packages(where='utils'),  #same as name
-   install_requires=install_requires, #external packages as dependencies
+        name='utils',
+        version='1.0.1',
+        description='Haystack based utils for NLP',
+        author='Data Service Center GIZ',
+        author_email='prashant.singh@giz.de',
+        package_dir={"": "src"},
+        packages=setuptools.find_packages(where='src'),  
+
+        install_requires=install_requires, #external packages as dependencies
 )
