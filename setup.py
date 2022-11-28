@@ -17,6 +17,7 @@ install_requires = [
 setuptools.setup(
    name='utils',
    version='1.0',
+   package_dir={"": "src"},
    description='A useful module',
    author='prashant',
    author_email='prashant.singh@giz.de',
