@@ -2,7 +2,7 @@ import streamlit as st
 import tempfile
 import json
 
-def add_upload(choice):
+def add_upload(choice, filelist):
     """
     Provdies the user with choice to either 'Upload Document' or 'Try Example'.
     Based on user choice runs streamlit processes and save the path and name of
@@ -23,7 +23,7 @@ def add_upload(choice):
                 
     else:
         # listing the options
-        with open('docStore/sample/files.json','r') as json_file:
+        with open(filelist,'r') as json_file:
             files = json.load(json_file)
 
         option = st.sidebar.selectbox('Select the example document',
