@@ -1,6 +1,7 @@
 import streamlit as st
 import tempfile
 import json
+import os
 
 def add_upload(choice, filelist):
     """
@@ -23,11 +24,11 @@ def add_upload(choice, filelist):
                 
     else:
         # listing the options
-        with open(filelist,'r') as json_file:
-            files = json.load(json_file)
+        # with open(filelist,'r') as json_file:
+        #     files = json.load(json_file)
 
         option = st.sidebar.selectbox('Select the example document',
-                              list(files.keys()))
-        file_name = file_path  = files[option]
+                              list(filelist.keys()))
+        file_name = file_path  = filelist[option]
         st.session_state['filename'] = file_name
         st.session_state['filepath'] = file_path
