@@ -22,7 +22,7 @@ except ImportError:
     logging.info("Streamlit not installed")
 
 
-@st.cache(allow_output_mutation=True)
+# @st.cache(allow_output_mutation=True)
 def loadQueryClassifier():
     """
     retuns the haystack query classifier model
@@ -116,7 +116,7 @@ class QueryCheck(BaseComponent):
         return output, "output_1"
 
 
-@st.cache(allow_output_mutation=True)
+# @st.cache(allow_output_mutation=True)
 def runSemanticPreprocessingPipeline(file_path:str, file_name:str, 
                 split_by: Literal["sentence", "word"] = 'sentence',
                 split_length:int = 2, split_overlap:int = 0,
@@ -165,8 +165,8 @@ def runSemanticPreprocessingPipeline(file_path:str, file_name:str,
     return output_semantic_pre
 
 
-@st.cache(hash_funcs={"builtins.SwigPyObject": lambda _: None},
-                                        allow_output_mutation=True)
+# @st.cache(hash_funcs={"builtins.SwigPyObject": lambda _: None},
+#                                         allow_output_mutation=True)
 def loadRetriever(embedding_model:Text=None, embedding_model_format:Text = None, 
                  embedding_layer:int = None,  retriever_top_k:int = 10, 
                  max_seq_len:int=512, document_store:InMemoryDocumentStore=None):
@@ -210,8 +210,8 @@ def loadRetriever(embedding_model:Text=None, embedding_model_format:Text = None,
         st.session_state['retriever'] = retriever
     return retriever
 
-@st.cache(hash_funcs={"builtins.SwigPyObject": lambda _: None},
-                    allow_output_mutation=True)
+# @st.cache(hash_funcs={"builtins.SwigPyObject": lambda _: None},
+#                     allow_output_mutation=True)
 def createDocumentStore(documents:List[Document], similarity:str = 'dot_product', 
                         embedding_dim:int = 768):
     """
@@ -239,8 +239,8 @@ def createDocumentStore(documents:List[Document], similarity:str = 'dot_product'
     return document_store
 
 
-@st.cache(hash_funcs={"builtins.SwigPyObject": lambda _: None},
-                                        allow_output_mutation=True)
+# @st.cache(hash_funcs={"builtins.SwigPyObject": lambda _: None},
+#                                         allow_output_mutation=True)
 def semanticSearchPipeline(documents:List[Document], embedding_model:Text =  None, 
                 embedding_model_format:Text = None,embedding_layer:int = None,
                 embedding_dim:int = 768,retriever_top_k:int = 10,

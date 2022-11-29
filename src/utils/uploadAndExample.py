@@ -24,8 +24,6 @@ def add_upload(choice, filelist):
                 
     else:
         # listing the options
-        # with open(filelist,'r') as json_file:
-        #     files = json.load(json_file)
 
         option = st.sidebar.selectbox('Select the example document',
                               list(filelist.keys()))

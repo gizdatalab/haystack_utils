@@ -33,7 +33,7 @@ _lab_dict = {0: 'no_cat',
             16:'SDG 16 - Peace, justice and strong institutions',
             17:'SDG 17 - Partnership for the goals',}
 
-@st.cache(allow_output_mutation=True)
+# @st.cache(allow_output_mutation=True)
 def load_sdgClassifier(config_file:str = None, classifier_name:str = None):
     """
     loads the document classifier using haystack, where the name/path of model
@@ -67,7 +67,7 @@ def load_sdgClassifier(config_file:str = None, classifier_name:str = None):
     return doc_classifier
         
 
-@st.cache(allow_output_mutation=True)
+# @st.cache(allow_output_mutation=True)
 def sdg_classification(haystack_doc:List[Document],
                         threshold:float = 0.8, 
                         classifier_model:TransformersDocumentClassifier= None
