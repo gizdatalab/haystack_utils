@@ -209,7 +209,7 @@ def loadRetriever(embedding_model:Text=None, embedding_model_format:Text = None,
                 emb_extraction_layer=embedding_layer, scale_score =True,
                 model_format=embedding_model_format, use_gpu = True, 
                 max_seq_len = max_seq_len )
-    if check_streamlit:
+    if check_streamlit():
         st.session_state['retriever'] = retriever
     return retriever
 
