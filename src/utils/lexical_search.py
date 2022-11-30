@@ -4,7 +4,10 @@ import spacy
 import re
 from spacy.matcher import Matcher
 from markdown import markdown
-from annotated_text import annotation
+try:
+    from annotated_text import annotation
+except:
+    pass
 from haystack.schema import Document
 from typing import List, Text, Tuple
 from typing_extensions import Literal
