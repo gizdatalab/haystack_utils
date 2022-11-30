@@ -3,7 +3,10 @@ from haystack.nodes import EmbeddingRetriever, FARMReader
 from haystack.nodes.base import BaseComponent
 from haystack.document_stores import InMemoryDocumentStore
 from markdown import markdown
-from annotated_text import annotation
+try:
+    from annotated_text import annotation
+except:
+    pass
 from haystack.schema import Document
 from typing import List, Text, Union
 from typing_extensions import Literal
