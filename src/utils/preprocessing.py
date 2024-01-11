@@ -164,7 +164,7 @@ class UdfPreProcessor(BaseComponent):
     """
     outgoing_edges = 1
 
-    def run(self, documents:List[Document], remove_punc:bool=False, 
+    def run(self, documents:List[Document], remove_punc:bool=False, apply_clean = True,
             split_by: Literal["sentence", "word"] = 'sentence',
             split_length:int = 2, split_respect_sentence_boundary:bool = False,
             split_overlap:int = 0):
@@ -219,8 +219,11 @@ class UdfPreProcessor(BaseComponent):
             # # basic cleaning before passing it to preprocessor.
             # i = basic(i)
             docs_processed = preprocessor.process([i])
-            for item in docs_processed:
-                item.content = basic(item.content, remove_punc= remove_punc)
+            if apply_clean:
+                for item in docs_processed:
+                    item.content = basic(item.content, remove_punc= remove_punc)
+            else:
+                pass
 
         df = pd.DataFrame(docs_processed)
         all_text = " ".join(df.content.to_list())
