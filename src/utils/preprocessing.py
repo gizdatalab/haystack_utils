@@ -91,20 +91,20 @@ class FileConverter(BaseComponent):
 
         text = document.content
 
-        # if file is image pdf then it will have {'content': "\x0c\x0c\x0c\x0c"}
-        # subsitute this substring with '',and check if content is empty string
+        # in case of scanned/images only PDF the content might contain only
+        # the page separator (\f or \x0c). We check if is so and use
+        # use the OCR to get the text.
+        filtered = re.sub(r'\x0c', '', text)
 
-        text = re.sub(r'\x0c', '', text)
+        if filtered == "":
+            logging.info("Using OCR")
+            text = useOCR(file_path)
+            
         documents.append(Document(content=text, 
                               meta={"name": file_name}, 
                               id_hash_keys=id_hash_keys))
 
         
-        # check if text is empty and apply pdfOCR converter.
-        for i in documents:
-            if i.content == "":
-                logging.info("Using OCR")
-                i.content = useOCR(file_path)
         
         logging.info('file conversion succesful')
         output = {'documents': documents}
@@ -150,6 +150,38 @@ def basic(s:str, remove_punc:bool = False):
     
     return s.strip()
 
+
+def paraLengthCheck(paraList, max_len = 100):
+    """
+    There are cases where preprocessor cannot respect word limit, when using 
+    respect sentence boundary flag due to missing sentence boundaries.
+    Therefore we run one more round of split here for those paragraphs
+    
+    Params
+    ---------------
+    paraList : list of paragraphs/text
+    max_len : max length to be respected by sentences which bypassed 
+              preprocessor strategy
+              
+    """
+    new_para_list = []
+    for passage in paraList:
+        # check if para exceeds words limit
+        if len(passage.content.split()) > max_len:
+          # we might need few iterations example if para = 512 tokens
+          # we need to iterate 5 times to reduce para to size limit of '100'
+            iterations = int(len(passage.content.split())/max_len)
+            for i in range(iterations):
+                temp  = " ".join(passage.content.split()[max_len*i:max_len*(i+1)])
+                new_para_list.append((temp,passage.meta['page']))
+            temp  = " ".join(passage.content.split()[max_len*(i+1):])
+            new_para_list.append((temp,passage.meta['page']))
+        else:
+            # paragraphs which dont need any splitting
+            new_para_list.append((passage.content, passage.meta['page']))
+    
+    logging.info("New paragraphs length {}".format(len(new_para_list)))
+    return new_para_list
 
 class UdfPreProcessor(BaseComponent):
     """
@@ -260,4 +292,3 @@ def processingpipeline():
                             name ='UdfPreProcessor', inputs=["FileConverter"])
 
     return preprocessing_pipeline
-
