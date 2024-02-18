@@ -8,7 +8,7 @@ from utils.preprocessing import processingpipeline
 import streamlit as st
 from transformers import pipeline
 import os
-auth_token = os.environ.get("TOKEN_FROM_SECRET") or True
+auth_token = os.environ.get("privatemodels") or True
 
 ## Labels dictionary ###
 _lab_dict = {
