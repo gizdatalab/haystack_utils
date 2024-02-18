@@ -1,6 +1,6 @@
 from haystack.nodes.base import BaseComponent
 from haystack.schema import Document
-from haystack.nodes import PDFToTextOCRConverter, PDFToTextConverter
+from haystack.nodes import ImageToTextConverter, PDFToTextConverter
 from haystack.nodes import TextConverter, DocxToTextConverter, PreProcessor
 from typing import Callable, Dict, List, Optional, Text, Tuple, Union
 from typing_extensions import Literal
@@ -23,7 +23,7 @@ def useOCR(file_path: str)-> Text:
     """
 
     
-    converter = PDFToTextOCRConverter(remove_numeric_tables=True, 
+    converter = ImageToTextConverter(remove_numeric_tables=True, 
                                       valid_languages=["eng"])
     docs = converter.convert(file_path=file_path, meta=None)
     return docs[0].content
