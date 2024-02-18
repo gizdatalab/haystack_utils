@@ -40,6 +40,7 @@ def load_targetClassifier(config_file:str = None, classifier_name:str = None):
             classifier_name = config.get('target','MODEL')
     
     logging.info("Loading classifier")  
+    st.write(auth_token)
       
     doc_classifier = pipeline("text-classification", 
                             model=classifier_name, use_auth_token = auth_token,
