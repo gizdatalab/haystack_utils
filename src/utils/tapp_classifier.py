@@ -43,7 +43,7 @@ def load_targetClassifier(config_file:str = None, classifier_name:str = None):
       
     doc_classifier = pipeline("text-classification", 
                             model=classifier_name, top_k =None,
-                            use_auth_token = auth_token,
+                            token = auth_token,
                             )
 
     return doc_classifier
