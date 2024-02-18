@@ -1,15 +1,14 @@
 import setuptools
 
 install_requires = [
-        "farm-haystack == 1.10",
-        "farm-haystack[ocr]==1.10.0",
+        "farm-haystack == 1.16",
+        "farm-haystack[ocr]==1.16.0",
         "spacy==3.2.0",
         "matplotlib==3.5.1",
         "nltk==3.7",
-        "pdfplumber==0.6.2",
         "Pillow==9.1.1",
         "seaborn==0.11.2",
-        "transformers==4.21.2",
+        "scikit-learn==1.3.2",
         "summa==1.2.0",
 ]
 

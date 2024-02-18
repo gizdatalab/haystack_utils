@@ -1,7 +1,6 @@
 import streamlit as st
 import tempfile
-import json
-import os
+import time
 
 def add_upload(choice, filelist):
     """
@@ -20,6 +19,9 @@ def add_upload(choice, filelist):
                 temp.write(bytes_data)
                 st.session_state['filename'] = uploaded_file.name
                 st.session_state['filepath'] = temp.name
+            succes  = st.success("Upload succesful")
+            time.sleep(3)
+            succes.empty()
 
                 
     else:
