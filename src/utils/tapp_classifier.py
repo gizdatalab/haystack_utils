@@ -7,6 +7,8 @@ from utils.config import getconfig
 from utils.preprocessing import processingpipeline
 import streamlit as st
 from transformers import pipeline
+import os
+auth_token = os.environ.get("TOKEN_FROM_SECRET") or True
 
 ## Labels dictionary ###
 _lab_dict = {
@@ -27,7 +29,7 @@ def load_targetClassifier(config_file:str = None, classifier_name:str = None):
     config_file: config file path from which to read the model name
     classifier_name: if modelname is passed, it takes a priority if not \
     found then will look for configfile, else raise error.
-    Return: document classifier model
+    Return: Transformer text Classification pipeline object
     """
     if not classifier_name:
         if not config_file:
@@ -40,8 +42,8 @@ def load_targetClassifier(config_file:str = None, classifier_name:str = None):
     logging.info("Loading classifier")  
       
     doc_classifier = pipeline("text-classification", 
-                            model=classifier_name, 
-                            top_k =1)
+                            model=classifier_name, use_auth_token = auth_token,
+                            top_k =None)
 
     return doc_classifier
 
@@ -75,16 +77,16 @@ def target_classification(haystack_doc:pd.DataFrame,
         classifier_model = st.session_state['target_classifier']
     
     results = classifier_model(list(haystack_doc.text))
-    labels_= [(l[0]['label'],
-               l[0]['score']) for l in results]
+    # labels_= [(l[0]['label'],
+    #            l[0]['score']) for l in results]
            
 
-    df1 = DataFrame(labels_, columns=["Target Label","Target Score"])
-    df = pd.concat([haystack_doc,df1],axis=1)
+    # df1 = DataFrame(labels_, columns=["Target Label","Target Score"])
+    # df = pd.concat([haystack_doc,df1],axis=1)
     
-    df = df.sort_values(by="Target Score", ascending=False).reset_index(drop=True)
-    df['Target Score'] = df['Target Score'].round(2)
-    df.index += 1
+    # df = df.sort_values(by="Target Score", ascending=False).reset_index(drop=True)
+    # df['Target Score'] = df['Target Score'].round(2)
+    # df.index += 1
     # df['Label_def'] = df['Target Label'].apply(lambda i: _lab_dict[i])
 
-    return df
+    return results
