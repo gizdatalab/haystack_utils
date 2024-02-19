@@ -14,9 +14,9 @@ auth_token = os.environ.get("privatemodels") or True
 @st.cache_resource
 def load_tappClassifier(config_file:str = None, classifier_name:str = None):
     """
-    loads the document classifier using haystack, where the name/path of model
+    loads the model using transformers, where the name/path of model
     in HF-hub as string is used to fetch the model object.Either configfile or 
-    pipeline with model object should be passed.
+    model name should be passed.
 
     Params
     --------
@@ -24,7 +24,7 @@ def load_tappClassifier(config_file:str = None, classifier_name:str = None):
     classifier_name: if modelname is passed, it takes a priority if not \
     found then will look for configfile, else raise error.
     --------
-    Return: Transformer text Classification pipeline object
+    Return: Transformer Text-Classification pipeline object
     """
     if not classifier_name:
         if not config_file:
@@ -46,9 +46,9 @@ def load_tappClassifier(config_file:str = None, classifier_name:str = None):
 @st.cache_resource
 def load_targetClassifier(config_file:str = None, classifier_name:str = None):
     """
-    loads the document classifier using haystack, where the name/path of model
-    in HF-hub as string is used to fetch the model object.Either configfile or 
-    Setfitmodel should be passed.
+    loads the model using transformers, where the name/path of model
+    in HF-hub as string is used to fetch the model object. Either configfile or 
+    Setfitmodel name should be passed.
 
     Params
     --------
@@ -80,7 +80,7 @@ def tapp_classification(haystack_doc:pd.DataFrame,
     """
     Text-Classification on the list of texts provided. Classifier provides the 
     most appropriate label for each text. these labels are in terms of if text 
-    belongs to which particular Sustainable Devleopment Goal (SDG).
+    belongs to which particular category i.e Target/Action/Policy/Plan.
     Params
     ---------
     haystack_doc: List of haystack Documents. The output of Preprocessing Pipeline 
@@ -96,8 +96,9 @@ def tapp_classification(haystack_doc:pd.DataFrame,
 
     Returns
     ----------
-    df: Dataframe with two columns[text, pagenumber, TargetLabel, ActionLabel, PolicyLabel,
-                                    PlanLabel] 
+    df: Dataframe with columns[text, pagenumber, TargetLabel, ActionLabel, PolicyLabel,
+                                    PlanLabel]. Only Text chunks which have either of class
+                                    True are kept
     """
     logging.info("Working on TAPP Extraction")
     if not tapp_classifier_model:
