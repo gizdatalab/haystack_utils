@@ -4,7 +4,6 @@ import logging
 import pandas as pd
 from pandas import DataFrame, Series
 from utils.config import getconfig
-from utils.preprocessing import processingpipeline
 import streamlit as st
 from transformers import pipeline
 import os
@@ -77,17 +76,16 @@ def target_classification(haystack_doc:pd.DataFrame,
     if not classifier_model:
         classifier_model = st.session_state['target_classifier']
     
+    # predict classes
     results = classifier_model(list(haystack_doc.text))
-    # labels_= [(l[0]['label'],
-    #            l[0]['score']) for l in results]
-           
-
-    # df1 = DataFrame(labels_, columns=["Target Label","Target Score"])
-    # df = pd.concat([haystack_doc,df1],axis=1)
-    
-    # df = df.sort_values(by="Target Score", ascending=False).reset_index(drop=True)
-    # df['Target Score'] = df['Target Score'].round(2)
-    # df.index += 1
-    # df['Label_def'] = df['Target Label'].apply(lambda i: _lab_dict[i])
-
-    return results
+    # extract score for each class and create dataframe
+    labels_= [{label['label']:round(label['score'],3) for label in result} 
+                                                    for result in results]
+    df1 = pd.DataFrame(labels_)
+    # conver the dataframe into truth value dataframe rather than probabilities
+    df2 = df1 >= threshold
+    # append the dataframe to original dataframe
+    df = pd.concat([haystack_doc,df2],axis=1)
+    # making index to start from 1 rather than 0
+    df.index += 1
+    return df
