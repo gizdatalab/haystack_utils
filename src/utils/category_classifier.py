@@ -68,7 +68,7 @@ def category_classification(haystack_doc:pd.DataFrame,
 
     Returns
     ----------
-    df: Dataframe, with columns added ['GHGLabel','NetzeroLabel','NonGHGLabel']
+    df: Dataframe, with columns added - categories
     """
     logging.info("Working on Category Identification")
     if not classifier_model:
