@@ -87,7 +87,7 @@ def target_classification(haystack_doc:pd.DataFrame,
     df2 = df1 >= threshold
     # append the dataframe to original dataframe
     df = pd.concat([haystack_doc,df2],axis=1)
-    df['check'] = df.apply(lambda x: any([x[label] for label in label_names]))
+    df['check'] = df.apply(lambda x: any([x[label] for label in label_names]),axis=1)
 
     # making index to start from 1 rather than 0
     df.index += 1
