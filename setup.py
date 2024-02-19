@@ -3,6 +3,7 @@ import setuptools
 install_requires = [
         "farm-haystack == 1.24",
         "farm-haystack[ocr,pdf]==1.24.0",
+        "farm-haystack[preprocessing] == 1.24",
         "spacy==3.2.0",
         "matplotlib==3.5.1",
         "nltk==3.7",

@@ -2,6 +2,7 @@ from haystack.nodes.base import BaseComponent
 from haystack.schema import Document
 from haystack.nodes import ImageToTextConverter, PDFToTextConverter
 from haystack.nodes import TextConverter, DocxToTextConverter, PreProcessor
+from pdf2image import convert_from_path
 from typing import Callable, Dict, List, Optional, Text, Tuple, Union
 from typing_extensions import Literal
 import pandas as pd
@@ -22,12 +23,25 @@ def useOCR(file_path: str)-> Text:
     Returns the text file as string.
     """
 
+    images = convert_from_path(pdf_path = file_path)
+    list_ = []
+    for i, pdf in enumerate(images):
+        # Save pages as images in the pdf
+        pdf.save(f'PDF\image_converted_{i+1}.png', 'PNG')
+        list_.append(f'PDF\image_converted_{i+1}.png')
     
-    converter = ImageToTextConverter(remove_numeric_tables=True, 
+    converter = ImageToTextConverter(remove_numeric_tables=True,
                                       valid_languages=["eng"])
-    docs = converter.convert(file_path=file_path, meta=None)
-    return docs[0].content
+    placeholder = []
+    for file in list_:
+        document = converter.convert(
+                            file_path=file, meta=None,
+                            )[0]
 
+        text = document.content
+        placeholder.append(text)
+    text = '\x0c'.join(placeholder)
+    return text
 
 
 
