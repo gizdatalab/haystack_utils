@@ -39,16 +39,6 @@ def load_sectorClassifier(config_file:str = None, classifier_name:str = None):
         else:
             config = getconfig(config_file)
             classifier_name = config.get('sector','MODEL')
-    
-    logging.info("Loading sector classifier")
-    # we are using the pipeline as the model is multilabel and DocumentClassifier 
-    # from Haystack doesnt support multilabel
-    # in pipeline we use 'sigmoid' to explicitly tell pipeline to make it multilabel
-    # if not then it will automatically use softmax, which is not a desired thing.
-    # doc_classifier = TransformersDocumentClassifier(
-    #                     model_name_or_path=classifier_name,
-    #                     task="text-classification",
-    #                     top_k = None)
 
     logging.info("Loading setfit sector classifier")   
     doc_classifier = SetFitModel.from_pretrained(classifier_name)
@@ -80,6 +70,7 @@ def sector_classification(haystack_doc:pd.DataFrame,
     if not classifier_model:
         classifier_model = st.session_state['sector_classifier']    
         predictions = classifier_model(list(haystack_doc.text))
+    st.write(predictions)
 
     # getting the sector label Boolean flag, we will not use threshold value, 
     # but use default of 0.5

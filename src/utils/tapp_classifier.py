@@ -127,5 +127,5 @@ def tapp_classification(haystack_doc:pd.DataFrame,
     df.drop('check',axis=1, inplace=True)
 
     # making index to start from 1 rather than 0
-    df.index += 1
+    # df.index += 1
     return df
