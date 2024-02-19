@@ -10,13 +10,18 @@ import os
 auth_token = os.environ.get("privatemodels") or True
 
 ## Labels dictionary ###
-sectors = ['GHGLabel','NetzeroLabel','NonGHGLabel' ]
+categories = ['Active mobility','Alternative fuels','Aviation improvements',
+              'Comprehensive transport planning','Digital solutions','Economic instruments',
+              'Education and behavioral change','Electric mobility',
+              'Freight efficiency improvements','Improve infrastructure','Land use',
+              'Other Transport Category','Public transport improvement',
+              'Shipping improvements','Transport demand management','Vehicle improvements']
 
 
 @st.cache_resource
-def load_subtargetClassifier(config_file:str = None, classifier_name:str = None):
+def load_categoryClassifier(config_file:str = None, classifier_name:str = None):
     """
-    loads the document classifier using haystack, where the name/path of model
+    where the name/path of model
     in HF-hub as string is used to fetch the model object.Either configfile or 
     model should be passed.
 
@@ -34,21 +39,21 @@ def load_subtargetClassifier(config_file:str = None, classifier_name:str = None)
             return
         else:
             config = getconfig(config_file)
-            classifier_name = config.get('subtarget','MODEL')
+            classifier_name = config.get('category','MODEL')
 
-    logging.info("Loading setfit subtarget classifier")   
+    logging.info("Loading setfit category classifier")   
     doc_classifier = SetFitModel.from_pretrained(classifier_name, token = auth_token)
     return doc_classifier
 
 
 @st.cache_data
-def subtarget_classification(haystack_doc:pd.DataFrame,
+def category_classification(haystack_doc:pd.DataFrame,
                         threshold:float = 0.5, 
                         classifier_model:SetFitModel= None
                         )->Tuple[DataFrame,Series]:
     """
     Text-Classification on the list of texts provided. Classifier provides the 
-    most appropriate Subtarget label for each text. limited to as defined in subtarget list
+    most appropriate Category label for each text. limited to as defined in subtarget list
 
     Params
     ---------
@@ -62,9 +67,9 @@ def subtarget_classification(haystack_doc:pd.DataFrame,
     ----------
     df: Dataframe, with columns added ['GHGLabel','NetzeroLabel','NonGHGLabel']
     """
-    logging.info("Working on Subtarget Identification")
+    logging.info("Working on Category Identification")
     if not classifier_model:
-        classifier_model = st.session_state['subtarget_classifier']    
+        classifier_model = st.session_state['category_classifier']    
     
     predictions = classifier_model(list(haystack_doc.text))
 
@@ -74,7 +79,7 @@ def subtarget_classification(haystack_doc:pd.DataFrame,
     for i in range(len(predictions)):
       temp = predictions[i]
       placeholder = {}
-      for idx,sector in enumerate(sectors):
+      for idx,sector in enumerate(categories):
         placeholder[sector] = bool(temp[idx])
       list_.append(placeholder)
     truth_df = pd.DataFrame(list_)
