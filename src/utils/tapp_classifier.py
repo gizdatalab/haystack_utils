@@ -113,7 +113,7 @@ def tapp_classification(haystack_doc:pd.DataFrame,
     # conver the dataframe into truth value dataframe rather than probabilities
     df2 = df1 >= threshold
     # append the dataframe to original dataframe 
-    df = pd.concat([haystack_doc,df2],ignore_index=True, axis=1)
+    df = pd.concat([haystack_doc,df2], axis=1)
     st.dataframe(df)
     # we drop the Target from Tapp to fetch Target more suited to IKI-tracs taxonomy
     df.drop('TargetLabel',axis=1, inplace=True)
