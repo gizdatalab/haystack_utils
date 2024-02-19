@@ -5,7 +5,7 @@ import pandas as pd
 from pandas import DataFrame, Series
 from utils.config import getconfig
 import streamlit as st
-from setfit import SetFitModel
+from transformers import pipeline
 import os
 auth_token = os.environ.get("privatemodels") or True
 
@@ -31,7 +31,7 @@ def load_categoryClassifier(config_file:str = None, classifier_name:str = None):
     classifier_name: if modelname is passed, it takes a priority if not \
     found then will look for configfile, else raise error.
 
-    Return: document setfit model
+    Return: pipeline object with model
     """
     if not classifier_name:
         if not config_file:
@@ -41,15 +41,18 @@ def load_categoryClassifier(config_file:str = None, classifier_name:str = None):
             config = getconfig(config_file)
             classifier_name = config.get('category','MODEL')
 
-    logging.info("Loading setfit category classifier")   
-    doc_classifier = SetFitModel.from_pretrained(classifier_name, token = auth_token)
+    logging.info("Loading category classifier")   
+    doc_classifier = pipeline("text-classification", 
+                            model=classifier_name, top_k =None,
+                            token = auth_token,
+                            )
     return doc_classifier
 
 
 @st.cache_data
 def category_classification(haystack_doc:pd.DataFrame,
                         threshold:float = 0.5, 
-                        classifier_model:SetFitModel= None
+                        classifier_model:pipeline= None
                         )->Tuple[DataFrame,Series]:
     """
     Text-Classification on the list of texts provided. Classifier provides the 
@@ -70,20 +73,16 @@ def category_classification(haystack_doc:pd.DataFrame,
     logging.info("Working on Category Identification")
     if not classifier_model:
         classifier_model = st.session_state['category_classifier']    
-    
-    predictions = classifier_model(list(haystack_doc.text))
 
-    # getting the sector label Boolean flag, we will not use threshold value, 
-    # but use default of 0.5
-    list_ = []
-    for i in range(len(predictions)):
-      temp = predictions[i]
-      placeholder = {}
-      for idx,sector in enumerate(categories):
-        placeholder[sector] = bool(temp[idx])
-      list_.append(placeholder)
-    truth_df = pd.DataFrame(list_)
-
-    # we collect the Sector Labels as set, None represent the value at the index
-    df = pd.concat([haystack_doc,truth_df],axis=1)
+    # predict classes
+    results = classifier_model(list(haystack_doc.text))
+    # extract score for each class and create dataframe
+    labels_= [{label['label']:round(label['score'],3) for label in result} 
+                                                    for result in results]
+    df1 = pd.DataFrame(labels_)
+    label_names = list(df1.columns)
+    # conver the dataframe into truth value dataframe rather than probabilities
+    df2 = df1 >= threshold
+    # append the dataframe to original dataframe 
+    df = pd.concat([haystack_doc,df2], axis=1)
     return df
