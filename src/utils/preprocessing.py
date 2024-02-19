@@ -10,7 +10,9 @@ import logging
 import re
 import string
 from haystack.pipelines import Pipeline
+import streamlit as st
 
+@st.cache_data
 def useOCR(file_path: str)-> Text:
     """
     Converts image pdfs into text, Using the Farm-haystack[OCR]
