@@ -5,14 +5,16 @@ import pandas as pd
 from pandas import DataFrame, Series
 from utils.config import getconfig
 import streamlit as st
-from transformers import pipeline
+from setfit import SetFitModel
 import os
 auth_token = os.environ.get("privatemodels") or True
 
+## Labels dictionary ###
+sectors = ['GHGLabel','NetzeroLabel','NonGHGLabel' ]
 
 
 @st.cache_resource
-def load_conditionalClassifier(config_file:str = None, classifier_name:str = None):
+def load_subtargetClassifier(config_file:str = None, classifier_name:str = None):
     """
     loads the document classifier using haystack, where the name/path of model
     in HF-hub as string is used to fetch the model object.Either configfile or 
@@ -24,7 +26,7 @@ def load_conditionalClassifier(config_file:str = None, classifier_name:str = Non
     classifier_name: if modelname is passed, it takes a priority if not \
     found then will look for configfile, else raise error.
 
-    Return: Text Classiifcation object with model
+    Return: document setfit model
     """
     if not classifier_name:
         if not config_file:
@@ -32,25 +34,21 @@ def load_conditionalClassifier(config_file:str = None, classifier_name:str = Non
             return
         else:
             config = getconfig(config_file)
-            classifier_name = config.get('conditional','MODEL')
+            classifier_name = config.get('subtarget','MODEL')
 
-    logging.info("Loading conditional classifier")  
-    doc_classifier = pipeline("text-classification", 
-                            model=classifier_name, top_k =None,
-                            token = auth_token,
-                            )
-
+    logging.info("Loading setfit subtarget classifier")   
+    doc_classifier = SetFitModel.from_pretrained(classifier_name)
     return doc_classifier
 
 
 @st.cache_data
-def conditional_classification(haystack_doc:pd.DataFrame,
+def subtarget_classification(haystack_doc:pd.DataFrame,
                         threshold:float = 0.5, 
-                        classifier_model:pipeline= None
+                        classifier_model:SetFitModel= None
                         )->Tuple[DataFrame,Series]:
     """
     Text-Classification on the list of texts provided. Classifier provides the 
-    most appropriate Conditionality label for each text.
+    most appropriate Subtarget label for each text. limited to as defined in subtarget list
 
     Params
     ---------
@@ -62,22 +60,25 @@ def conditional_classification(haystack_doc:pd.DataFrame,
 
     Returns
     ----------
-    df: Dataframe, with columns added ['ConditionalLabel','UnconditionalLabel']
+    df: Dataframe, with columns added ['GHGLabel','NetzeroLabel','NonGHGLabel']
     """
-    logging.info("Working on Conditionality")
+    logging.info("Working on Subtarget Identification")
     if not classifier_model:
-        classifier_model = st.session_state['conditional_classifier']    
+        classifier_model = st.session_state['subtarget_classifier']    
+    
+    predictions = classifier_model(list(haystack_doc.text))
 
-    # predict classes
-    results = classifier_model(list(haystack_doc.text))
-    # extract score for each class and create dataframe
-    labels_= [{label['label']:round(label['score'],3) for label in result} 
-                                                    for result in results]
-    df1 = pd.DataFrame(labels_)
-    label_names = list(df1.columns)
-    # conver the dataframe into truth value dataframe rather than probabilities
-    df2 = df1 >= threshold
-    # append the dataframe to original dataframe 
-    df = pd.concat([haystack_doc,df2], axis=1)
+    # getting the sector label Boolean flag, we will not use threshold value, 
+    # but use default of 0.5
+    list_ = []
+    for i in range(len(predictions)):
+      temp = predictions[i]
+      placeholder = {}
+      for idx,sector in enumerate(sectors):
+        placeholder[sector] = bool(temp[idx])
+      list_.append(placeholder)
+    truth_df = pd.DataFrame(list_)
 
+    # we collect the Sector Labels as set, None represent the value at the index
+    df = pd.concat([haystack_doc,truth_df],axis=1)
     return df
