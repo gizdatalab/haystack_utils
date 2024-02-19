@@ -49,7 +49,7 @@ def load_targetClassifier(config_file:str = None, classifier_name:str = None):
 
 
 @st.cache_data
-def target_classification(haystack_doc:pd.DataFrame,
+def tapp_classification(haystack_doc:pd.DataFrame,
                         threshold:float = 0.5, 
                         classifier_model:pipeline= None
                         )->Tuple[DataFrame,Series]:
@@ -72,23 +72,24 @@ def target_classification(haystack_doc:pd.DataFrame,
     x: Series object with the unique SDG covered in the document uploaded and 
     the number of times it is covered/discussed/count_of_paragraphs. 
     """
-    logging.info("Working on Target Extraction")
+    logging.info("Working on TAPP Extraction")
     if not classifier_model:
-        classifier_model = st.session_state['target_classifier']
+        classifier_model = st.session_state['tapp_classifier']
     
     # predict classes
     results = classifier_model(list(haystack_doc.text))
-    label_names = list(results[0].keys())
     # extract score for each class and create dataframe
     labels_= [{label['label']:round(label['score'],3) for label in result} 
                                                     for result in results]
     df1 = pd.DataFrame(labels_)
+    label_names = list(df1.columns)
     # conver the dataframe into truth value dataframe rather than probabilities
     df2 = df1 >= threshold
-    # append the dataframe to original dataframe
+    # append the dataframe to original dataframe 
     df = pd.concat([haystack_doc,df2],axis=1)
     df['check'] = df.apply(lambda x: any([x[label] for label in label_names]),axis=1)
-
+    df = df[df.check == True].reset_index(drop=True)
+    df.drop('check',axis=1, inplace=True)
     # making index to start from 1 rather than 0
     df.index += 1
     return df
