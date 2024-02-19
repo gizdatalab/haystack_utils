@@ -44,7 +44,7 @@ def load_conditionalClassifier(config_file:str = None, classifier_name:str = Non
 
 
 @st.cache_data
-def adapmit_classification(haystack_doc:pd.DataFrame,
+def conditional_classification(haystack_doc:pd.DataFrame,
                         threshold:float = 0.5, 
                         classifier_model:pipeline= None
                         )->Tuple[DataFrame,Series]:
