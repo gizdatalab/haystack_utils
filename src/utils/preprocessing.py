@@ -24,9 +24,11 @@ def useOCR(file_path: str)-> Text:
     
     Returns the text file as string.
     """
-
+    # we need pdf file to be first converted into image file
+    # this will create each page as image file
     images = convert_from_path(pdf_path = file_path)
     list_ = []
+    # save image file in cache and read them one by one to pass it to OCR
     for i, pdf in enumerate(images):
         # Save pages as images in the pdf
         pdf.save(f'PDF\image_converted_{i+1}.png', 'PNG')
@@ -34,6 +36,7 @@ def useOCR(file_path: str)-> Text:
     
     converter = ImageToTextConverter(remove_numeric_tables=True,
                                       valid_languages=["eng"])
+    # placeholder to collect  the text from each page
     placeholder = []
     for file in list_:
         document = converter.convert(
@@ -42,6 +45,7 @@ def useOCR(file_path: str)-> Text:
 
         text = document.content
         placeholder.append(text)
+    # join the text from each page by page separator
     text = '\x0c'.join(placeholder)
     return text
 

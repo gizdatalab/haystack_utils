@@ -1,9 +1,6 @@
 import configparser
 import logging
 
-import configparser
-import logging
-
 def getconfig(configfile_path:str):
     """
     configfile_path: file path of .cfg file
@@ -18,7 +15,7 @@ def getconfig(configfile_path:str):
         logging.warning("config file not found")
 
 
-# Declare all the necessary variables
+# read all the necessary variables
 def get_classifier_params(model_name):
     config = getconfig('paramconfig.cfg')
     params = {}

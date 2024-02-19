@@ -7,6 +7,7 @@ from utils.config import getconfig
 import streamlit as st
 from transformers import pipeline
 import os
+# if using the private hosted model need to pass the auth-token
 auth_token = os.environ.get("privatemodels") or True
 
 
@@ -14,17 +15,18 @@ auth_token = os.environ.get("privatemodels") or True
 @st.cache_resource
 def load_adapmitClassifier(config_file:str = None, classifier_name:str = None):
     """
-    loads the document classifier using haystack, where the name/path of model
+    loads the model using transformers, where the name/path of model
     in HF-hub as string is used to fetch the model object.Either configfile or 
-    model should be passed.
+    model name should be passed.
+
 
     Params
     --------
     config_file: config file path from which to read the model name
     classifier_name: if modelname is passed, it takes a priority if not \
-    found then will look for configfile, else raise error.
-
-    Return: Text Classiifcation object with model
+                    found then will look for configfile, else raise error.
+    --------
+    Return: Transformer Text-Classification pipeline object
     """
     if not classifier_name:
         if not config_file:
@@ -54,10 +56,12 @@ def adapmit_classification(haystack_doc:pd.DataFrame,
 
     Params
     ---------
-    haystack_doc: The output of Tapp_extraction
+    haystack_doc: dataframe updated with Tapp and Sector classifier
     threshold: threshold value for the model to keep the results from classifier
     classifiermodel: you can pass the classifier model directly,which takes priority
-    however if not then looks for model in streamlit session.
+                    however if not then looks for model in streamlit session.
+
+                    
     In case of streamlit avoid passing the model directly.
 
     Returns

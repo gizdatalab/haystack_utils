@@ -5,8 +5,10 @@ import pandas as pd
 from pandas import DataFrame, Series
 from utils.config import getconfig
 import streamlit as st
+# Setfit trained model cannot be loaded using Transformer library
 from setfit import SetFitModel
 import os
+# if using the private hosted model need to pass the auth-token
 auth_token = os.environ.get("privatemodels") or True
 
 ## Labels dictionary ###
@@ -16,17 +18,17 @@ sectors = ['GHGLabel','NetzeroLabel','NonGHGLabel' ]
 @st.cache_resource
 def load_subtargetClassifier(config_file:str = None, classifier_name:str = None):
     """
-    loads the document classifier using haystack, where the name/path of model
-    in HF-hub as string is used to fetch the model object.Either configfile or 
-    model should be passed.
+    loads the Setfit model, where the name/path of model
+    in HF-hub as string is used to fetch the model object. Either configfile or 
+    Setfitmodel name should be passed.
 
     Params
     --------
     config_file: config file path from which to read the model name
     classifier_name: if modelname is passed, it takes a priority if not \
-    found then will look for configfile, else raise error.
-
-    Return: document setfit model
+                    found then will look for configfile, else raise error.
+    ------------
+    Return: Setfitmodel
     """
     if not classifier_name:
         if not config_file:
@@ -48,14 +50,16 @@ def subtarget_classification(haystack_doc:pd.DataFrame,
                         )->Tuple[DataFrame,Series]:
     """
     Text-Classification on the list of texts provided. Classifier provides the 
-    most appropriate Subtarget label for each text. limited to as defined in subtarget list
+    most appropriate Sector label for each text. limited to as defined in 'sectors'
 
     Params
     ---------
-    haystack_doc: The output of Tapp_extraction
+    haystack_doc: Dataframe updated by TAPP, Sector, ADAPMIT, Conditional classifier
     threshold: threshold value for the model to keep the results from classifier
     classifiermodel: you can pass the classifier model directly,which takes priority
-    however if not then looks for model in streamlit session.
+                    however if not then looks for model in streamlit session.
+
+
     In case of streamlit avoid passing the model directly.
 
     Returns

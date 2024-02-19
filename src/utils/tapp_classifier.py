@@ -6,8 +6,10 @@ from pandas import DataFrame, Series
 from utils.config import getconfig
 import streamlit as st
 from transformers import pipeline
+# Setfit trained model cannot be loaded using Transformer library
 from setfit import SetFitModel
 import os
+# if using the private hosted model need to pass the auth-token
 auth_token = os.environ.get("privatemodels") or True
 
 
@@ -22,7 +24,7 @@ def load_tappClassifier(config_file:str = None, classifier_name:str = None):
     --------
     config_file: config file path from which to read the model name
     classifier_name: if modelname is passed, it takes a priority if not \
-    found then will look for configfile, else raise error.
+                    found then will look for configfile, else raise error.
     --------
     Return: Transformer Text-Classification pipeline object
     """
@@ -46,7 +48,7 @@ def load_tappClassifier(config_file:str = None, classifier_name:str = None):
 @st.cache_resource
 def load_targetClassifier(config_file:str = None, classifier_name:str = None):
     """
-    loads the model using transformers, where the name/path of model
+    loads the Setfit model, where the name/path of model
     in HF-hub as string is used to fetch the model object. Either configfile or 
     Setfitmodel name should be passed.
 
@@ -54,7 +56,7 @@ def load_targetClassifier(config_file:str = None, classifier_name:str = None):
     --------
     config_file: config file path from which to read the model name
     classifier_name: if modelname is passed, it takes a priority if not \
-    found then will look for configfile, else raise error.
+                    found then will look for configfile, else raise error.
     ------------
     Return: Setfitmodel
 
@@ -81,24 +83,26 @@ def tapp_classification(haystack_doc:pd.DataFrame,
     Text-Classification on the list of texts provided. Classifier provides the 
     most appropriate label for each text. these labels are in terms of if text 
     belongs to which particular category i.e Target/Action/Policy/Plan.
+
     Params
     ---------
-    haystack_doc: List of haystack Documents. The output of Preprocessing Pipeline 
-    contains the list of paragraphs in different format,here the list of 
-    Haystack Documents is used.
+    haystack_doc:The output of Preprocessing Pipeline contains the list of paragraphs in 
+                different format,here the dataframe is used.
     threshold: threshold value for the model to keep the results from classifier
     tapp_classifiermodel: you can pass the classifier model directly,which takes priority
-    however if not then looks for model in streamlit session. This will classify if text 
-    is Target/Action/Policy/Plan
+                        however if not then looks for model in streamlit session. 
+                        This will classify if text is Target/Action/Policy/Plan
     target_setfit: this classifier will use IKI specific target definition to update the
-    Target identification in dataframe. In case of streamlit avoid passing the model directly.
+                    Target identification in dataframe. 
+                    
+    In case of streamlit avoid passing the model directly.
 
 
     Returns
     ----------
     df: Dataframe with columns[text, pagenumber, TargetLabel, ActionLabel, PolicyLabel,
                                     PlanLabel]. Only Text chunks which have either of class
-                                    True are kept
+                                    True are kept, Rest text chunks are discarded from df
     """
     logging.info("Working on TAPP Extraction")
     if not tapp_classifier_model:
@@ -117,6 +121,7 @@ def tapp_classification(haystack_doc:pd.DataFrame,
     df = pd.concat([haystack_doc,df2], axis=1)
     # we drop the Target from Tapp to fetch Target more suited to IKI-tracs taxonomy
     df.drop('TargetLabel',axis=1, inplace=True)
+    logging.info("Working on Target Update")
     if not target_setfit:
         target_setfit = st.session_state['target_classifier']
     results = target_setfit(list(df.text))
@@ -126,6 +131,4 @@ def tapp_classification(haystack_doc:pd.DataFrame,
     df = df[df.check == True].reset_index(drop=True)
     df.drop('check',axis=1, inplace=True)
 
-    # making index to start from 1 rather than 0
-    # df.index += 1
     return df
