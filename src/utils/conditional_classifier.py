@@ -6,6 +6,8 @@ from pandas import DataFrame, Series
 from utils.config import getconfig
 import streamlit as st
 from transformers import pipeline
+from torch import cuda
+device = 'cuda' if cuda.is_available() else 'cpu'
 import os
 # if using the private hosted model need to pass the auth-token
 auth_token = os.environ.get("privatemodels") or True
@@ -38,7 +40,7 @@ def load_conditionalClassifier(config_file:str = None, classifier_name:str = Non
     logging.info("Loading conditional classifier")  
     doc_classifier = pipeline("text-classification", 
                             model=classifier_name, top_k =None,
-                            token = auth_token,
+                            token = auth_token,device=device,
                             )
 
     return doc_classifier

@@ -7,6 +7,8 @@ from utils.config import getconfig
 import streamlit as st
 # Setfit trained model cannot be loaded using Transformer library
 from setfit import SetFitModel
+from torch import cuda
+device = 'cuda' if cuda.is_available() else 'cpu'
 import os
 # if using the private hosted model need to pass the auth-token
 auth_token = os.environ.get("privatemodels") or True
@@ -39,7 +41,8 @@ def load_subtargetClassifier(config_file:str = None, classifier_name:str = None)
             classifier_name = config.get('subtarget','MODEL')
 
     logging.info("Loading setfit subtarget classifier")   
-    doc_classifier = SetFitModel.from_pretrained(classifier_name, token = auth_token)
+    doc_classifier = SetFitModel.from_pretrained(classifier_name, token = auth_token, 
+                                                  device=device)
     return doc_classifier
 
 

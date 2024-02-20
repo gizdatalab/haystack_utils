@@ -7,6 +7,8 @@ from utils.config import getconfig
 import streamlit as st
 # Setfit trained model cannot be loaded using Transformer library
 from setfit import SetFitModel
+from torch import cuda
+device = 'cuda' if cuda.is_available() else 'cpu'
 
 ## Labels dictionary ###
 sectors = [
@@ -41,7 +43,7 @@ def load_sectorClassifier(config_file:str = None, classifier_name:str = None):
             classifier_name = config.get('sector','MODEL')
 
     logging.info("Loading setfit sector classifier")   
-    doc_classifier = SetFitModel.from_pretrained(classifier_name)
+    doc_classifier = SetFitModel.from_pretrained(classifier_name, device=device)
     return doc_classifier
 
 

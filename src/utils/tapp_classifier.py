@@ -8,6 +8,8 @@ import streamlit as st
 from transformers import pipeline
 # Setfit trained model cannot be loaded using Transformer library
 from setfit import SetFitModel
+from torch import cuda
+device = 'cuda' if cuda.is_available() else 'cpu'
 import os
 # if using the private hosted model need to pass the auth-token
 auth_token = os.environ.get("privatemodels") or True
@@ -40,7 +42,7 @@ def load_tappClassifier(config_file:str = None, classifier_name:str = None):
       
     doc_classifier = pipeline("text-classification", 
                             model=classifier_name, top_k =None,
-                            token = auth_token,
+                            token = auth_token,device=device,
                             )
 
     return doc_classifier
@@ -70,7 +72,7 @@ def load_targetClassifier(config_file:str = None, classifier_name:str = None):
             classifier_name = config.get('target','MODEL')
     
     logging.info("Loading setfit target classifier")   
-    doc_classifier = SetFitModel.from_pretrained(classifier_name)
+    doc_classifier = SetFitModel.from_pretrained(classifier_name, device=device)
     return doc_classifier
 
 @st.cache_data
