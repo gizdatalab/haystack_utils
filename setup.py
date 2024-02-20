@@ -10,6 +10,8 @@ install_requires = [
         "Pillow==9.1.1",
         "seaborn==0.11.2",
         "scikit-learn==1.3.2",
+        "torch==2.1.0",
+        "setfit==1.0.3"
         "summa==1.2.0",
 ]
 
