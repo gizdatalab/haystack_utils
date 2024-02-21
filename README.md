@@ -22,3 +22,7 @@ To install as package for streamlit app:
 ```
 pip install -e "git+https://github.com/gizdatalab/haystack_utils.git@streamlit#egg=utils"
 ```
+To install as package (for CPU-trac Streamlit app https://huggingface.co/spaces/GIZ/cpu_tracs):
+```
+pip install -e "git+https://github.com/gizdatalab/haystack_utils.git@cputrac#egg=utils"
+```
